@@ -536,6 +536,24 @@ pub struct MemoryArgs {
     )]
     pub enable_cache_memory: bool,
 
+    #[cfg(target_os = "linux")]
+    #[arg(
+        long,
+        action = ArgAction::SetTrue,
+        help = "Enables collecting and displaying zswap pool memory usage.",
+        alias = "enable-zswap"
+    )]
+    pub enable_zswap: bool,
+
+    #[cfg(target_os = "linux")]
+    #[arg(
+        long,
+        action = ArgAction::SetTrue,
+        help = "Subtract the zswap pool from the total and used RAM shown in the memory widget.",
+        alias = "free-zswap"
+    )]
+    pub free_zswap: bool,
+
     #[cfg(feature = "zfs")]
     #[arg(
         long,

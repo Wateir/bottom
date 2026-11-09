@@ -114,6 +114,8 @@ pub struct Styles {
     #[cfg(not(target_os = "windows"))]
     pub(crate) cache_style: Style,
     pub(crate) swap_style: Style,
+    #[cfg(target_os = "linux")]
+    pub(crate) zswap_style: Style,
     #[cfg(feature = "zfs")]
     pub(crate) arc_style: Style,
     #[cfg(feature = "gpu")]
@@ -220,6 +222,9 @@ impl Styles {
         #[cfg(not(target_os = "windows"))]
         set_colour!(self.cache_style, config.memory, cache_colour);
 
+        #[cfg(target_os = "linux")]
+        set_colour!(self.zswap_style, config.memory, zswap_colour);
+
         #[cfg(feature = "zfs")]
         set_colour!(self.arc_style, config.memory, arc_colour);
 
@@ -308,6 +313,7 @@ mod test {
         assert!(mem.ram_colour.is_some());
         assert!(mem.cache_colour.is_some());
         assert!(mem.swap_colour.is_some());
+        assert!(mem.zswap_colour.is_some());
         assert!(mem.arc_colour.is_some());
         assert!(mem.gpu_colours.is_some());
 

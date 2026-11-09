@@ -133,6 +133,7 @@ dependencies = [
  "nvml-wrapper",
  "ratatui",
  "ratatui-core",
+ "ratatui-crossterm",
  "regex",
  "rustc-hash",
  "rustix",
@@ -1028,7 +1029,6 @@ checksum = "3274ba0a2c5e1bcad2a2005d20f4dc59dad26b2eb0940fb094500dba4099d57d"
 dependencies = [
  "instability",
  "ratatui-core",
- "ratatui-crossterm",
  "ratatui-widgets",
  "serde",
 ]

@@ -323,6 +323,13 @@ impl Painter {
                     mem_rows += 1; // add row for swap
                 }
 
+                #[cfg(target_os = "linux")]
+                {
+                    if data.zswap_harvest.is_some() {
+                        mem_rows += 1; // add row for zswap
+                    }
+                }
+
                 #[cfg(feature = "zfs")]
                 {
                     if data.arc_harvest.is_some() {

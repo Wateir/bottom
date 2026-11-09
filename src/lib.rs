@@ -239,6 +239,8 @@ fn create_collection_thread(
     let get_process_swap = app_config_fields.get_process_swap;
     #[cfg(feature = "zfs")]
     let get_arc_free = app_config_fields.free_arc;
+    #[cfg(target_os = "linux")]
+    let get_zswap_free = app_config_fields.free_zswap;
     let include_unmounted_disks =
         app_config_fields.disk_show_unmounted || app_config_fields.disk_io_graph_show_unmounted;
 
@@ -253,6 +255,8 @@ fn create_collection_thread(
         data_collector.set_get_process_swap(get_process_swap);
         #[cfg(feature = "zfs")]
         data_collector.set_free_arc_mem(get_arc_free);
+        #[cfg(target_os = "linux")]
+        data_collector.set_free_zswap_mem(get_zswap_free);
         data_collector.set_include_unmounted_disks(include_unmounted_disks);
 
         data_collector.update_data();

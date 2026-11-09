@@ -50,6 +50,10 @@ pub struct TimeSeriesData {
     /// Swap data.
     pub swap: Values,
 
+    #[cfg(target_os = "linux")]
+    /// zswap pool data.
+    pub zswap_mem: Values,
+
     #[cfg(not(target_os = "windows"))]
     /// Cache data.
     pub cache_mem: Values,
@@ -130,6 +134,15 @@ impl TimeSeriesData {
             self.swap.push(swap.percentage());
         } else {
             self.swap.insert_break();
+        }
+
+        #[cfg(target_os = "linux")]
+        {
+            if let Some(zswap) = &data.zswap {
+                self.zswap_mem.push(zswap.pool.percentage());
+            } else {
+                self.zswap_mem.insert_break();
+            }
         }
 
         #[cfg(not(target_os = "windows"))]
@@ -318,6 +331,9 @@ impl TimeSeriesData {
 
         let _ = self.ram.prune_and_shrink_to_fit(end);
         let _ = self.swap.prune_and_shrink_to_fit(end);
+
+        #[cfg(target_os = "linux")]
+        let _ = self.zswap_mem.prune_and_shrink_to_fit(end);
 
         #[cfg(not(target_os = "windows"))]
         let _ = self.cache_mem.prune_and_shrink_to_fit(end);

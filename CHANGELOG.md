@@ -24,6 +24,11 @@ That said, these are more guidelines rather than hard rules, though the project 
 
 ## 0.15.1 - Unreleased
 
+### Features
+
+- Add `--enable_zswap` / `memory_graph.enable_zswap` to display zswap pool memory usage and compression ratio in the memory widget on Linux.
+- Add `--free_zswap` / `memory_graph.free_zswap` on Linux to subtract the zswap pool from the total and used RAM shown in the memory widget.
+
 ### Changes
 
 - [#2296](https://github.com/ClementTsang/bottom/pull/2296): Better truncate CPU usage strings with small widths.

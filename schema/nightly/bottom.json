@@ -825,8 +825,22 @@
             "null"
           ]
         },
+        "enable_zswap": {
+          "description": "Whether to collect and display zswap pool memory usage. Not available on\nnon-Linux platforms.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
         "free_arc": {
           "description": "Whether to subtract ARC that can be freed from memory usage.",
+          "type": [
+            "boolean",
+            "null"
+          ]
+        },
+        "free_zswap": {
+          "description": "Whether to subtract the zswap pool from the total and used RAM shown in\nthe memory widget. Not available on non-Linux platforms.",
           "type": [
             "boolean",
             "null"
@@ -897,6 +911,17 @@
         },
         "swap_colour": {
           "description": "The colour of the swap label and graph line.",
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ColourStr"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "zswap_colour": {
+          "description": "The colour of the zswap label and graph line. Does not do anything on\nnon-Linux platforms.",
           "anyOf": [
             {
               "$ref": "#/$defs/ColourStr"

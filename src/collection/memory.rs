@@ -16,6 +16,11 @@ cfg_select! {
     }
 }
 
+#[cfg(target_os = "linux")]
+pub mod zswap;
+#[cfg(target_os = "linux")]
+pub(crate) use self::zswap::get_zswap_usage;
+
 #[cfg(feature = "zfs")]
 pub mod arc;
 

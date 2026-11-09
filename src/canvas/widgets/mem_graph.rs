@@ -6,6 +6,8 @@ use ratatui::{
     style::Style,
 };
 
+#[cfg(target_os = "linux")]
+use crate::collection::memory::zswap::ZswapData;
 use crate::{
     app::{App, data::Values},
     canvas::{
@@ -53,6 +55,28 @@ fn graph_data<'a>(
     }
 }
 
+/// Convert zswap info into a combined memory label.
+///
+/// Unlike the other entries, the ZWP label shows the pool's compression
+/// ratio (e.g. `4.20:1`) instead of a total, since the pool's share of RAM is
+/// already conveyed by the percentage, and the pool has no fixed maximum size.
+#[cfg(target_os = "linux")]
+#[inline]
+fn zswap_legend_label(data: Option<&ZswapData>) -> String {
+    if let Some(data) = data {
+        let percentage = data.pool.percentage();
+        let (unit, denominator) = get_binary_unit_and_denominator(data.pool.total_bytes.get());
+        let used = data.pool.used_bytes as f64 / denominator;
+
+        match data.compression_ratio() {
+            Some(ratio) => format!("ZWP:{percentage:3.0}%   {used:.1}{unit}  {ratio:.2}:1"),
+            None => format!("ZWP:{percentage:3.0}%   {used:.1}{unit}"),
+        }
+    } else {
+        "ZWP:   0%   0.0B".to_string()
+    }
+}
+
 impl Painter {
     pub fn draw_memory_graph(
         &self, f: &mut Frame<'_>, app_state: &mut App, draw_loc: Rect, widget_id: u64,
@@ -74,6 +98,12 @@ impl Painter {
 
                 if data.swap_harvest.is_some() {
                     size += 1; // add capacity for SWAP
+                }
+                #[cfg(target_os = "linux")]
+                {
+                    if data.zswap_harvest.is_some() {
+                        size += 1; // add capacity for ZWP
+                    }
                 }
                 #[cfg(feature = "zfs")]
                 {
@@ -109,6 +139,21 @@ impl Painter {
                     &time_series.swap,
                     self.styles.swap_style,
                 );
+
+                #[cfg(target_os = "linux")]
+                {
+                    if !time_series.zswap_mem.no_elements() {
+                        let label = zswap_legend_label(data.zswap_harvest.as_ref()).into();
+
+                        points.push(
+                            GraphData::default()
+                                .name(label)
+                                .time(time)
+                                .values(&time_series.zswap_mem)
+                                .style(self.styles.zswap_style),
+                        );
+                    }
+                }
 
                 #[cfg(not(target_os = "windows"))]
                 {

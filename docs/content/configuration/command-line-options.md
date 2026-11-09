@@ -72,6 +72,8 @@ see information on these options by running `btm -h`, or run `btm --help` to dis
 | ---------------------------- | --------------------------------------------------------- |
 | `--memory_legend <POSITION>` | Where to place the legend for the memory chart widget.    |
 | `--enable_cache_memory`      | Enable collecting and displaying cache and buffer memory. |
+| `--enable_zswap`             | Enable collecting and displaying zswap pool memory usage. |
+| `--free_zswap`               | Subtract the zswap pool from the total and used RAM shown in the memory widget. |
 | `--free_arc`                 | Subtract ARC memory that can be freed from memory usage.  |
 | `--short_gpu_names`          | Use short GPU names in the memory widget.                 |
 

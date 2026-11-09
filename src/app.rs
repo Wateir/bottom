@@ -61,6 +61,7 @@ pub struct AppConfigFields {
     pub enable_gpu: bool,
     pub short_gpu_names: bool,
     pub enable_cache_memory: bool,
+    pub enable_zswap: bool,
     pub show_table_scroll_position: bool,
     pub show_table_scroll_bar: bool,
     #[cfg(any(target_os = "linux", target_os = "macos", target_os = "freebsd"))]
@@ -70,6 +71,8 @@ pub struct AppConfigFields {
     pub hide_k_threads: bool,
     #[cfg(feature = "zfs")]
     pub free_arc: bool,
+    #[cfg(target_os = "linux")]
+    pub free_zswap: bool,
     pub memory_legend_position: Option<LegendPosition>,
     // TODO: Remove these, move network details state-side.
     pub network_unit_type: DataUnit,

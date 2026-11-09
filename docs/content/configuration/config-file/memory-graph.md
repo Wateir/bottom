@@ -24,6 +24,30 @@ shown. By default, it is `false`.
 cache_memory = true
 ```
 
+## Collect/show zswap pool memory
+
+On Linux, you can show how much memory the [zswap](https://www.kernel.org/doc/html/latest/admin-guide/mm/zswap.html)
+compressed pool is using, as a percentage of total RAM, in absolute terms, and its compression ratio. This is shown as
+a `ZWP` entry in the memory widget. By default, it is `false`; if it is enabled but the system does not expose zswap
+stats, nothing is shown.
+
+```toml
+[memory_graph]
+enable_zswap = true
+```
+
+## Subtract the zswap pool from RAM
+
+On Linux, when zswap reporting is enabled, you can additionally subtract the zswap pool from the total and used RAM
+shown in the memory widget. The RAM entry then reflects the memory you have available after zswap reserves its
+compressed pool, and the pool itself is shown separately as the `ZWP` entry. Enabling this implies
+`memory_graph.enable_zswap`. Disabled by default.
+
+```toml
+[memory_graph]
+free_zswap = true
+```
+
 ## Short GPU names
 
 If GPU support is enabled, you can use `short_gpu_names` to display simplified GPU names in the memory graph widget

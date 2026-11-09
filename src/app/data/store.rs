@@ -10,6 +10,8 @@ use rustc_hash::FxHashMap;
 use super::{ProcessData, TimeSeriesData};
 #[cfg(feature = "battery")]
 use crate::collection::batteries;
+#[cfg(target_os = "linux")]
+use crate::collection::memory::zswap::ZswapData;
 use crate::{
     app::{AppConfigFields, DataFilters, filter::Filter, layout_manager::UsedWidgets},
     collection::{
@@ -82,6 +84,8 @@ pub struct InnerData {
     pub(crate) swap_harvest: Option<MemData>,
     #[cfg(not(target_os = "windows"))]
     pub(crate) cache_harvest: Option<MemData>,
+    #[cfg(target_os = "linux")]
+    pub(crate) zswap_harvest: Option<ZswapData>,
     #[cfg(feature = "zfs")]
     pub(crate) arc_harvest: Option<MemData>,
     #[cfg(feature = "gpu")]
@@ -111,6 +115,8 @@ impl Default for InnerData {
             #[cfg(not(target_os = "windows"))]
             cache_harvest: None,
             swap_harvest: None,
+            #[cfg(target_os = "linux")]
+            zswap_harvest: None,
             cpu_harvest: CpuHarvest::default(),
             load_avg_harvest: LoadAvgHarvest::default(),
             process_data: Default::default(),
@@ -175,6 +181,11 @@ impl InnerData {
         #[cfg(not(target_os = "windows"))]
         {
             self.cache_harvest = data.cache;
+        }
+
+        #[cfg(target_os = "linux")]
+        {
+            self.zswap_harvest = data.zswap;
         }
 
         #[cfg(feature = "zfs")]

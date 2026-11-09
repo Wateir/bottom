@@ -5,6 +5,8 @@ use ratatui::{
     layout::{Constraint, Direction, Layout, Rect},
 };
 
+#[cfg(target_os = "linux")]
+use crate::collection::memory::zswap::ZswapData;
 use crate::{
     app::App,
     canvas::{Painter, components::pipe_gauge::PipeGauge, drawing_utils::widget_block},
@@ -37,6 +39,25 @@ fn memory_label(data: &MemData, is_percentage: bool) -> Cow<'static, str> {
         memory_percentage_label(data)
     } else {
         memory_fraction_label(data)
+    }
+}
+
+/// Convert zswap info into a label, showing the pool size and its compression
+/// ratio (e.g. `4.20:1`) rather than a total, since the pool has no fixed
+/// maximum size.
+#[cfg(target_os = "linux")]
+#[inline]
+fn zswap_label(data: &ZswapData, is_percentage: bool) -> Cow<'static, str> {
+    if is_percentage {
+        memory_percentage_label(&data.pool)
+    } else {
+        let (unit, denominator) = get_binary_unit_and_denominator(data.pool.total_bytes.get());
+        let used = data.pool.used_bytes as f64 / denominator;
+
+        match data.compression_ratio() {
+            Some(ratio) => format!("{used:.1}{unit} {ratio:.2}:1").into(),
+            None => format!("{used:.1}{unit}").into(),
+        }
     }
 }
 
@@ -98,6 +119,24 @@ impl Painter {
                     .gauge_style(self.styles.swap_style)
                     .bar_type(self.styles.bar_type),
             );
+        }
+
+        #[cfg(target_os = "linux")]
+        {
+            if let Some(zswap_harvest) = &data.zswap_harvest {
+                let zswap_percentage = zswap_harvest.pool.percentage();
+                let zswap_label = zswap_label(zswap_harvest, app_state.basic_mode_use_percent);
+
+                draw_widgets.push(
+                    PipeGauge::default()
+                        .ratio(zswap_percentage / 100.0)
+                        .start_label("ZWP")
+                        .inner_label(zswap_label)
+                        .label_style(self.styles.zswap_style)
+                        .gauge_style(self.styles.zswap_style)
+                        .bar_type(self.styles.bar_type),
+                );
+            }
         }
 
         #[cfg(not(target_os = "windows"))]

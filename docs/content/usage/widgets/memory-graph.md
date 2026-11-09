@@ -13,7 +13,7 @@ If the total RAM or swap available is 0, then it is automatically hidden from th
 
 One can also adjust the displayed time range through either the keyboard or mouse, with a range of 30s to 600s.
 
-This widget can also be configured to display Nvidia and AMD GPU memory usage (`--disable_gpu` on Linux/Windows to disable) or cache memory usage (`--enable_cache_memory`).
+This widget can also be configured to display Nvidia and AMD GPU memory usage (`--disable_gpu` on Linux/Windows to disable), cache memory usage (`--enable_cache_memory`), or zswap pool memory usage (`--enable_zswap` on Linux). On Linux, `--free_zswap` additionally subtracts the zswap pool from the total and used RAM, so the RAM entry reflects the memory available after zswap reserves it.
 
 ## Key bindings
 
@@ -42,6 +42,13 @@ MemTotal - MemFree - Buffers - (Cached + SReclaimable - Shmem)
 ```
 
 You can find more info on `/proc/meminfo` and its fields [here](https://access.redhat.com/documentation/en-us/red_hat_enterprise_linux/6/html/deployment_guide/s2-proc-meminfo).
+
+If zswap reporting is enabled (`--enable_zswap`), the `ZWP` entry reports the size of the compressed zswap pool in
+RAM (the `Zswap` field in `/proc/meminfo`) as a percentage of total memory, alongside the pool's compression ratio
+(e.g. `4.20:1`, the `Zswapped` field divided by the `Zswap` field). The ratio is only shown on kernels that report
+`Zswapped` (6.8 and newer). The entry itself is only shown if the system exposes zswap stats.
+If `--free_zswap` is set, the pool is instead subtracted from both the used and total RAM amounts, so the RAM
+entry describes the memory available after zswap reserves its pool.
 
 ### Windows
 

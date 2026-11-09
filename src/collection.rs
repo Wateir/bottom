@@ -49,6 +49,8 @@ pub struct Data {
     #[cfg(not(target_os = "windows"))]
     pub cache: Option<memory::MemData>,
     pub swap: Option<memory::MemData>,
+    #[cfg(target_os = "linux")]
+    pub zswap: Option<memory::zswap::ZswapData>,
     pub temperature_sensors: Option<Vec<temperature::TempSensorData>>,
     pub network: Option<network::NetworkHarvest>,
     pub list_of_processes: Option<Vec<processes::ProcessHarvest>>,
@@ -72,6 +74,8 @@ impl Default for Data {
             #[cfg(not(target_os = "windows"))]
             cache: None,
             swap: None,
+            #[cfg(target_os = "linux")]
+            zswap: None,
             temperature_sensors: None,
             list_of_processes: None,
             disks: None,
@@ -97,6 +101,11 @@ impl Data {
         self.swap = None;
         self.cpu = None;
         self.load_avg = None;
+
+        #[cfg(target_os = "linux")]
+        {
+            self.zswap = None;
+        }
 
         if let Some(network) = &mut self.network {
             network.first_run_cleanup();
@@ -201,6 +210,9 @@ pub struct DataCollector {
     free_arc_mem: bool,
 
     #[cfg(target_os = "linux")]
+    free_zswap_mem: bool,
+
+    #[cfg(target_os = "linux")]
     cgroup_memory_data: CgroupMemCollector,
 
     #[cfg(target_os = "linux")]
@@ -250,6 +262,8 @@ impl DataCollector {
             nvidia_gpu_list_cache: None,
             #[cfg(feature = "zfs")]
             free_arc_mem: false,
+            #[cfg(target_os = "linux")]
+            free_zswap_mem: false,
             last_list_collection_time: last_collection_time,
             should_run_less_routine_tasks: true,
             #[cfg(target_os = "linux")]
@@ -313,6 +327,11 @@ impl DataCollector {
     #[cfg(feature = "zfs")]
     pub fn set_free_arc_mem(&mut self, free_mem: bool) {
         self.free_arc_mem = free_mem;
+    }
+
+    #[cfg(target_os = "linux")]
+    pub fn set_free_zswap_mem(&mut self, free_mem: bool) {
+        self.free_zswap_mem = free_mem;
     }
 
     /// Refresh sysinfo data. We use sysinfo for the following data:
@@ -578,6 +597,22 @@ impl DataCollector {
             #[cfg(not(target_os = "windows"))]
             if self.widgets_to_harvest.use_cache {
                 self.data.cache = memory::get_cache_usage(&self.sys.system);
+            }
+
+            #[cfg(target_os = "linux")]
+            if self.widgets_to_harvest.use_zswap
+                && let Some(zswap) = memory::get_zswap_usage(&self.sys.system)
+            {
+                // Optionally report RAM with the zswap pool carved out of
+                // both the used and total amounts, so the RAM entry
+                // reflects the memory available after zswap reserves it.
+                if self.free_zswap_mem
+                    && let Some(mem) = &mut self.data.memory
+                {
+                    memory::zswap::subtract_pool_from_ram(mem, zswap.pool.used_bytes);
+                }
+
+                self.data.zswap = Some(zswap);
             }
 
             self.data.swap = memory::get_swap_usage(self);

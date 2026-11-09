@@ -142,6 +142,7 @@ These can be set under `[styles.memory]`:
 | `ram_colour`   | The colour of the RAM label and graph line                                     | `ram_colour = "Red"`                     |
 | `cache_colour` | The colour of the cache label and graph line. Does not do anything on Windows. | `cache_colour = "#ffffff"`               |
 | `swap_colour`  | The colour of the swap label and graph line                                    | `swap_colour = "255, 0, 255"`            |
+| `zswap_colour` | The colour of the zswap label and graph line. Does not do anything on non-Linux platforms. | `zswap_colour = "Green"`      |
 | `arc_colour`   | The colour of the ARC label and graph line                                     | `arc_colour = "Blue"`                    |
 | `gpu_colours`  | Colour of each GPU's memory label and graph line. Read in order.               | `gpu_colours = ["Red", "Blue", "Green"]` |
 

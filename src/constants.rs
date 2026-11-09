@@ -689,6 +689,7 @@ pub(crate) const CONFIG_TEXT: &str = r#"# This is a default config file for bott
 #ram_colour = "light magenta"
 #cache_colour = "light red"
 #swap_colour = "light yellow"
+#zswap_colour = "light green"
 #arc_colour = "light cyan"
 #gpu_colours = ["light blue", "light red", "cyan", "green", "blue", "red"]
 
